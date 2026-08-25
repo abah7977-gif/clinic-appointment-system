@@ -4,18 +4,28 @@
 
 <meta http-equiv="refresh" content="15">
 
-<h2>Live Queue Board</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
 
-<p class="text-muted">
-  Automatically refreshes every 15 seconds.
-</p>
+  <div>
+
+    <h2 class="mb-1">
+      Live Queue Board
+    </h2>
+
+    <p class="text-muted mb-0">
+      Automatically refreshes every 15 seconds.
+    </p>
+
+  </div>
+
+</div>
 
 
 <div class="row g-4">
 
 {% for a in appointments %}
 
-  <div class="col-md-4">
+  <div class="col-md-6 col-lg-4">
 
     <div class="card p-4 text-center h-100">
 
@@ -23,26 +33,42 @@
         {{ a.queue_number }}
       </div>
 
-      <h5 class="mt-2">
+      <h5 class="mt-3 mb-1">
         {{ a.doctor.name }}
       </h5>
 
-      <p>
+      <p class="text-muted mb-2">
         {{ a.doctor.room or 'Consultation Room' }}
       </p>
 
-      <span
-        class="badge
-        {% if a.status == 'Called' %}
-          text-bg-warning
-        {% elif a.status == 'In Consultation' %}
-          text-bg-success
-        {% else %}
-          text-bg-primary
-        {% endif %}"
-      >
-        {{ a.status }}
-      </span>
+
+      {% if a.status == 'Called' %}
+
+        <span class="badge text-bg-warning fs-6">
+          CALLED
+        </span>
+
+      {% elif a.status == 'In Consultation' %}
+
+        <span class="badge text-bg-success fs-6">
+          IN CONSULTATION
+        </span>
+
+      {% else %}
+
+        <span class="badge text-bg-primary fs-6">
+          WAITING
+        </span>
+
+      {% endif %}
+
+
+      <div class="small-muted mt-3">
+
+        Appointment Time:
+        {{ a.scheduled_time.strftime('%H:%M') }}
+
+      </div>
 
     </div>
 
@@ -53,7 +79,9 @@
   <div class="col-12">
 
     <div class="card p-5 text-center text-muted">
+
       No patients currently in the active queue.
+
     </div>
 
   </div>

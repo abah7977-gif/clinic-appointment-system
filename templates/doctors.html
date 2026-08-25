@@ -2,7 +2,18 @@
 
 {% block content %}
 
-<h2>Doctor Management</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+  <div>
+    <h2 class="mb-0">Doctor Management</h2>
+
+    <span class="text-muted">
+      Add doctors, manage login accounts, activate, archive, restore or permanently delete records.
+    </span>
+  </div>
+
+</div>
+
 
 <div class="row g-4">
 
@@ -10,7 +21,9 @@
 
     <div class="card p-4">
 
-      <h5>Add Doctor</h5>
+      <h5 class="mb-3">
+        Add New Doctor
+      </h5>
 
       <form
         method="post"
@@ -24,8 +37,10 @@
         <input
           class="form-control mb-3"
           name="name"
+          placeholder="e.g. Dr. Ahmad Hassan"
           required
         >
+
 
         <label class="form-label">
           Room
@@ -34,10 +49,52 @@
         <input
           class="form-control mb-3"
           name="room"
+          placeholder="e.g. Room 4"
         >
 
-        <button class="btn btn-primary">
-          Add Doctor
+
+        <hr>
+
+
+        <h6 class="mb-3">
+          Doctor Login Account
+        </h6>
+
+
+        <label class="form-label">
+          Username
+        </label>
+
+        <input
+          class="form-control mb-3"
+          name="username"
+          placeholder="e.g. drahmad"
+          required
+        >
+
+
+        <label class="form-label">
+          Temporary Password
+        </label>
+
+        <input
+          type="password"
+          class="form-control mb-2"
+          name="password"
+          placeholder="Minimum 8 characters"
+          required
+        >
+
+        <div class="form-text mb-3">
+          The doctor will use this username and password to login.
+        </div>
+
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+        >
+          Add Doctor & Create Login
         </button>
 
       </form>
@@ -53,18 +110,21 @@
 
       <div class="table-responsive">
 
-        <table class="table mb-0">
+        <table class="table table-hover align-middle mb-0">
 
           <thead>
 
             <tr>
-              <th>Name</th>
+              <th>Doctor</th>
               <th>Room</th>
               <th>Status</th>
-              <th>Management</th>
+              <th>Schedule / Leave</th>
+              <th>Account</th>
+              <th>Actions</th>
             </tr>
 
           </thead>
+
 
           <tbody>
 
@@ -73,50 +133,191 @@
             <tr>
 
               <td>
-                {{ d.name }}
+                <strong>{{ d.name }}</strong>
               </td>
+
 
               <td>
                 {{ d.room or '-' }}
               </td>
 
+
               <td>
-                {{ 'Active' if d.active else 'Inactive' }}
+
+                {% if d.archived %}
+
+                  <span class="badge text-bg-secondary">
+                    Archived
+                  </span>
+
+                {% elif d.active %}
+
+                  <span class="badge text-bg-success">
+                    Active
+                  </span>
+
+                {% else %}
+
+                  <span class="badge text-bg-warning">
+                    Inactive
+                  </span>
+
+                {% endif %}
+
               </td>
 
-              <td class="d-flex flex-wrap gap-1">
 
-                <a
-                  class="btn btn-sm btn-outline-primary"
-                  href="{{ url_for('doctor_schedule', doctor_id=d.id) }}"
-                >
-                  Schedule
-                </a>
+              <td>
 
-                <a
-                  class="btn btn-sm btn-outline-warning"
-                  href="{{ url_for('doctor_leave', doctor_id=d.id) }}"
-                >
-                  Leave
-                </a>
+                <div class="d-flex flex-wrap gap-1">
+
+                  <a
+                    class="btn btn-sm btn-outline-primary"
+                    href="{{ url_for('doctor_schedule', doctor_id=d.id) }}"
+                  >
+                    Schedule
+                  </a>
+
+                  <a
+                    class="btn btn-sm btn-outline-warning"
+                    href="{{ url_for('doctor_leave', doctor_id=d.id) }}"
+                  >
+                    Leave
+                  </a>
+
+                </div>
+
+              </td>
+
+
+              <td>
 
                 <form
                   method="post"
-                  action="{{ url_for('toggle_doctor', doctor_id=d.id) }}"
+                  action="{{ url_for('reset_doctor_password', doctor_id=d.id) }}"
+                  class="d-flex gap-1"
                 >
 
-                  <button class="btn btn-sm btn-outline-secondary">
+                  <input
+                    type="password"
+                    name="new_password"
+                    class="form-control form-control-sm"
+                    placeholder="New password"
+                    minlength="8"
+                    required
+                  >
 
-                    {% if d.active %}
-                      Deactivate
-                    {% else %}
-                      Activate
-                    {% endif %}
-
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-outline-dark"
+                  >
+                    Reset
                   </button>
 
                 </form>
 
+              </td>
+
+
+              <td>
+
+                <div class="d-flex flex-wrap gap-1">
+
+                  {% if not d.archived %}
+
+                  <form
+                    method="post"
+                    action="{{ url_for('toggle_doctor', doctor_id=d.id) }}"
+                  >
+
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-outline-secondary"
+                    >
+
+                      {% if d.active %}
+                        Deactivate
+                      {% else %}
+                        Activate
+                      {% endif %}
+
+                    </button>
+
+                  </form>
+
+                  {% endif %}
+
+
+                  {% if not d.archived %}
+
+                  <form
+                    method="post"
+                    action="{{ url_for('archive_doctor', doctor_id=d.id) }}"
+                    onsubmit="return confirm(
+                      'Archive this doctor? The doctor will no longer be available for new appointments.'
+                    );"
+                  >
+
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-outline-warning"
+                    >
+                      Archive
+                    </button>
+
+                  </form>
+
+                  {% else %}
+
+                  <form
+                    method="post"
+                    action="{{ url_for('restore_doctor', doctor_id=d.id) }}"
+                  >
+
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-outline-success"
+                    >
+                      Restore
+                    </button>
+
+                  </form>
+
+                  {% endif %}
+
+
+                  <form
+                    method="post"
+                    action="{{ url_for('delete_doctor', doctor_id=d.id) }}"
+                    onsubmit="return confirm(
+                      'Are you sure you want to permanently delete this doctor? This action cannot be undone. Permanent deletion is only allowed when the doctor has no appointment history.'
+                    );"
+                  >
+
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-outline-danger"
+                    >
+                      Delete
+                    </button>
+
+                  </form>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          {% else %}
+
+            <tr>
+
+              <td
+                colspan="6"
+                class="text-center py-4 text-muted"
+              >
+                No doctors found.
               </td>
 
             </tr>
@@ -132,6 +333,33 @@
     </div>
 
   </div>
+
+</div>
+
+
+<div class="alert alert-light border mt-4">
+
+  <strong>Doctor Record Rules</strong>
+
+  <br>
+
+  <strong>Deactivate:</strong>
+  Temporarily prevents the doctor from receiving new appointments and disables login.
+
+  <br>
+
+  <strong>Archive:</strong>
+  Use when the doctor has transferred, resigned or should no longer appear as active staff.
+
+  <br>
+
+  <strong>Restore:</strong>
+  Returns an archived doctor to active status.
+
+  <br>
+
+  <strong>Delete:</strong>
+  Intended for dummy or incorrectly created doctors. Permanent deletion is blocked if appointment history exists.
 
 </div>
 

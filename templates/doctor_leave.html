@@ -2,9 +2,27 @@
 
 {% block content %}
 
-<h2>
-  {{ doctor.name }} · Leave / Unavailable Dates
-</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+  <div>
+    <h2 class="mb-1">
+      {{ doctor.name }} · Leave / Unavailable Dates
+    </h2>
+
+    <p class="text-muted mb-0">
+      Dates entered here will automatically block this doctor from appointment allocation.
+    </p>
+  </div>
+
+  <a
+    href="{{ url_for('doctors') }}"
+    class="btn btn-outline-secondary"
+  >
+    Back to Doctors
+  </a>
+
+</div>
+
 
 <div class="row g-4">
 
@@ -12,10 +30,14 @@
 
     <div class="card p-4">
 
+      <h5 class="mb-3">
+        Add Leave / Unavailable Date
+      </h5>
+
       <form method="post">
 
         <label class="form-label">
-          Leave Date
+          Date
         </label>
 
         <input
@@ -25,6 +47,7 @@
           required
         >
 
+
         <label class="form-label">
           Reason
         </label>
@@ -32,10 +55,14 @@
         <input
           class="form-control mb-3"
           name="reason"
-          placeholder="Optional"
+          placeholder="e.g. Annual Leave, Training"
         >
 
-        <button class="btn btn-primary">
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+        >
           Add Leave
         </button>
 
@@ -50,71 +77,90 @@
 
     <div class="card">
 
-      <table class="table mb-0">
+      <div class="card-header fw-bold">
+        Leave / Unavailable Records
+      </div>
 
-        <thead>
+      <div class="table-responsive">
 
-          <tr>
-            <th>Date</th>
-            <th>Reason</th>
-            <th></th>
-          </tr>
+        <table class="table table-hover align-middle mb-0">
 
-        </thead>
+          <thead>
 
-        <tbody>
+            <tr>
+              <th>Date</th>
+              <th>Reason</th>
+              <th>Action</th>
+            </tr>
 
-        {% for l in leaves %}
+          </thead>
 
-          <tr>
+          <tbody>
 
-            <td>
-              {{ l.leave_date }}
-            </td>
+          {% for l in leaves %}
 
-            <td>
-              {{ l.reason or '-' }}
-            </td>
+            <tr>
 
-            <td>
+              <td>
+                {{ l.leave_date }}
+              </td>
 
-              <form
-                method="post"
-                action="{{ url_for('delete_leave', leave_id=l.id) }}"
+              <td>
+                {{ l.reason or '-' }}
+              </td>
+
+              <td>
+
+                <form
+                  method="post"
+                  action="{{ url_for('delete_leave', leave_id=l.id) }}"
+                  onsubmit="return confirm('Delete this leave record?');"
+                >
+
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-outline-danger"
+                  >
+                    Delete
+                  </button>
+
+                </form>
+
+              </td>
+
+            </tr>
+
+          {% else %}
+
+            <tr>
+
+              <td
+                colspan="3"
+                class="text-center py-4 text-muted"
               >
+                No leave records.
+              </td>
 
-                <button class="btn btn-sm btn-outline-danger">
-                  Delete
-                </button>
+            </tr>
 
-              </form>
+          {% endfor %}
 
-            </td>
+          </tbody>
 
-          </tr>
+        </table>
 
-        {% else %}
-
-          <tr>
-
-            <td
-              colspan="3"
-              class="text-center py-4 text-muted"
-            >
-              No leave records.
-            </td>
-
-          </tr>
-
-        {% endfor %}
-
-        </tbody>
-
-      </table>
+      </div>
 
     </div>
 
   </div>
+
+</div>
+
+
+<div class="alert alert-light border mt-4">
+
+  When a doctor is marked unavailable on a date, the doctor is automatically excluded from appointment capacity for all slots on that date.
 
 </div>
 

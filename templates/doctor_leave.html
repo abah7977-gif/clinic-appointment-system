@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>
+  {{ doctor.name }} · Leave / Unavailable Dates
+</h2>
+
+<div class="row g-4">
+
+  <div class="col-lg-4">
+
+    <div class="card p-4">
+
+      <form method="post">
+
+        <label class="form-label">
+          Leave Date
+        </label>
+
+        <input
+          type="date"
+          class="form-control mb-3"
+          name="leave_date"
+          required
+        >
+
+        <label class="form-label">
+          Reason
+        </label>
+
+        <input
+          class="form-control mb-3"
+          name="reason"
+          placeholder="Optional"
+        >
+
+        <button class="btn btn-primary">
+          Add Leave
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <div class="col-lg-8">
+
+    <div class="card">
+
+      <table class="table mb-0">
+
+        <thead>
+
+          <tr>
+            <th>Date</th>
+            <th>Reason</th>
+            <th></th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for l in leaves %}
+
+          <tr>
+
+            <td>
+              {{ l.leave_date }}
+            </td>
+
+            <td>
+              {{ l.reason or '-' }}
+            </td>
+
+            <td>
+
+              <form
+                method="post"
+                action="{{ url_for('delete_leave', leave_id=l.id) }}"
+              >
+
+                <button class="btn btn-sm btn-outline-danger">
+                  Delete
+                </button>
+
+              </form>
+
+            </td>
+
+          </tr>
+
+        {% else %}
+
+          <tr>
+
+            <td
+              colspan="3"
+              class="text-center py-4 text-muted"
+            >
+              No leave records.
+            </td>
+
+          </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

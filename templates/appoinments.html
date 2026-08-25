@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+  <div>
+    <h2 class="mb-0">Appointments</h2>
+
+    <span class="text-muted">
+      Appointment and queue management
+    </span>
+  </div>
+
+  {% if current_user.role in ['Admin', 'Receptionist'] %}
+
+  <a
+    class="btn btn-primary"
+    href="{{ url_for('new_appointment') }}"
+  >
+    + New Appointment
+  </a>
+
+  {% endif %}
+
+</div>
+
+
+<div class="card">
+
+  <div class="table-responsive">
+
+    <table class="table table-hover align-middle mb-0">
+
+      <thead>
+
+        <tr>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Duration</th>
+          <th>Queue</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Room</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+      {% for a in appointments %}
+
+      <tr>
+
+        <td>
+          {{ a.appointment_date }}
+        </td>
+
+        <td>
+          {{ a.scheduled_time.strftime('%H:%M') }}
+        </td>
+
+        <td>
+          {{ a.duration_minutes }} min
+        </td>
+
+        <td>
+
+          <span class="badge text-bg-primary">
+            {{ a.queue_number }}
+          </span>
+
+        </td>
+
+        <td>
+
+          {{ a.patient.patient_no }}
+          ·
+          {{ a.patient.name }}
+
+        </td>
+
+        <td>
+          {{ a.doctor.name }}
+        </td>
+
+        <td>
+          {{ a.doctor.room or '-' }}
+        </td>
+
+        <td>
+
+          {% if a.status == 'Completed' %}
+
+            <span class="badge text-bg-success">
+              Completed
+            </span>
+
+          {% elif a.status == 'In Consultation' %}
+
+            <span class="badge text-bg-info">
+              In Consultation
+            </span>
+
+          {% elif a.status == 'Called' %}
+
+            <span class="badge text-bg-warning">
+              Called
+            </span>
+
+          {% elif a.status == 'Checked In' %}
+
+            <span class="badge text-bg-primary">
+              Checked In
+            </span>
+
+          {% elif a.status == 'No Show' %}
+
+            <span class="badge text-bg-secondary">
+              No Show
+            </span>
+
+          {% elif a.status == 'Cancelled' %}
+
+            <span class="badge text-bg-danger">
+              Cancelled
+            </span>
+
+          {% else %}
+
+            <span class="badge text-bg-light border text-dark">
+              {{ a.status }}
+            </span>
+
+          {% endif %}
+
+        </td>
+
+        <td>
+
+          <div class="d-flex gap-1 flex-wrap">
+
+            <form
+              method="post"
+              action="{{ url_for('appointment_action', appointment_id=a.id) }}"
+              class="d-flex gap-1 flex-wrap"
+            >
+
+              {% if current_user.role in ['Admin', 'Receptionist']
+                    and a.status == 'Scheduled' %}
+
+              <button
+                class="btn btn-sm btn-outline-primary"
+                name="action"
+                value="checkin"
+              >
+                Check In
+              </button>
+
+              {% endif %}
+
+
+              {% if current_user.role in ['Admin', 'Receptionist', 'Doctor']
+                    and a.status in ['Scheduled', 'Checked In'] %}
+
+              <button
+                class="btn btn-sm btn-outline-warning"
+                name="action"
+                value="call"
+              >
+                Call
+              </button>
+
+              {% endif %}
+
+
+              {% if current_user.role in ['Admin', 'Doctor']
+                    and a.status in ['Called', 'Checked In'] %}
+
+              <button
+                class="btn btn-sm btn-outline-success"
+                name="action"
+                value="start"
+              >
+                Start
+              </button>
+
+              {% endif %}
+
+
+              {% if current_user.role in ['Admin', 'Doctor']
+                    and a.status == 'In Consultation' %}
+
+              <button
+                class="btn btn-sm btn-success"
+                name="action"
+                value="complete"
+              >
+                Complete
+              </button>
+
+              {% endif %}
+
+
+              {% if current_user.role in ['Admin', 'Receptionist']
+                    and a.status not in ['Completed', 'Cancelled', 'No Show'] %}
+
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                name="action"
+                value="noshow"
+              >
+                No Show
+              </button>
+
+              <button
+                class="btn btn-sm btn-outline-danger"
+                name="action"
+                value="cancel"
+              >
+                Cancel
+              </button>
+
+              {% endif %}
+
+            </form>
+
+
+            {% if current_user.role in ['Admin', 'Receptionist']
+                  and a.status not in ['Completed', 'Cancelled', 'No Show'] %}
+
+            <a
+              class="btn btn-sm btn-outline-dark"
+              href="{{ url_for('reschedule_appointment', appointment_id=a.id) }}"
+            >
+              Reschedule
+            </a>
+
+            {% endif %}
+
+          </div>
+
+        </td>
+
+      </tr>
+
+      {% else %}
+
+      <tr>
+
+        <td
+          colspan="9"
+          class="text-center py-4 text-muted"
+        >
+          No appointments found.
+        </td>
+
+      </tr>
+
+      {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+{% endblock %}

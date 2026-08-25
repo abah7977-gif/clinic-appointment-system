@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>
+  {% if appointment %}
+    Reschedule Appointment
+  {% else %}
+    New Appointment
+  {% endif %}
+</h2>
+
+<p class="text-muted">
+  The system validates doctor working hours, leave and overlapping appointments.
+</p>
+
+<div class="card p-4" style="max-width:950px">
+
+<form method="post">
+
+  <div class="row g-3">
+
+    {% if not appointment %}
+
+    <div class="col-md-4">
+
+      <label class="form-label">
+        Patient ID
+      </label>
+
+      <input
+        class="form-control"
+        name="patient_no"
+        required
+      >
+
+    </div>
+
+
+    <div class="col-md-4">
+
+      <label class="form-label">
+        Patient Name
+      </label>
+
+      <input
+        class="form-control"
+        name="patient_name"
+        required
+      >
+
+    </div>
+
+
+    <div class="col-md-4">
+
+      <label class="form-label">
+        Phone
+      </label>
+
+      <input
+        class="form-control"
+        name="phone"
+      >
+
+    </div>
+
+    {% endif %}
+
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Appointment Date
+      </label>
+
+      <input
+        type="date"
+        class="form-control"
+        name="appointment_date"
+        value="{{ appointment.appointment_date if appointment else '' }}"
+        required
+      >
+
+    </div>
+
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Appointment Time
+      </label>
+
+      <input
+        type="time"
+        class="form-control"
+        name="scheduled_time"
+        value="{{ appointment.scheduled_time.strftime('%H:%M') if appointment else '' }}"
+        required
+      >
+
+    </div>
+
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Expected Duration
+      </label>
+
+      <select
+        class="form-select"
+        name="duration_minutes"
+      >
+
+        {% for x in [15,30,45,60] %}
+
+        <option
+          value="{{ x }}"
+          {% if appointment and appointment.duration_minutes == x %}
+            selected
+          {% endif %}
+        >
+          {{ x }} minutes
+        </option>
+
+        {% endfor %}
+
+      </select>
+
+    </div>
+
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Doctor
+      </label>
+
+      <select
+        class="form-select"
+        name="doctor_id"
+      >
+
+        <option value="">
+          Auto-Assign Available Doctor
+        </option>
+
+        {% for d in doctors %}
+
+        <option
+          value="{{ d.id }}"
+          {% if appointment and appointment.doctor_id == d.id %}
+            selected
+          {% endif %}
+        >
+
+          {{ d.name }}
+
+          {% if d.room %}
+            · {{ d.room }}
+          {% endif %}
+
+        </option>
+
+        {% endfor %}
+
+      </select>
+
+    </div>
+
+  </div>
+
+
+  <div class="mt-4">
+
+    <button class="btn btn-primary">
+      Save Appointment
+    </button>
+
+    <a
+      href="{{ url_for('appointments') }}"
+      class="btn btn-outline-secondary"
+    >
+      Cancel
+    </a>
+
+  </div>
+
+</form>
+
+</div>
+
+{% endblock %}

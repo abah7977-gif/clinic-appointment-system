@@ -2,56 +2,136 @@
 
 {% block content %}
 
-<h2 class="mb-1">Clinic Dashboard</h2>
-<p class="text-muted">
-  Operational overview for {{ current_date }}
-</p>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+  <div>
+    <h2 class="mb-1">
+      Clinic Dashboard
+    </h2>
+
+    <p class="text-muted mb-0">
+      Operational overview for {{ current_date }}
+    </p>
+  </div>
+
+  {% if current_user.role in ['Admin', 'Receptionist'] %}
+
+  <a
+    class="btn btn-primary"
+    href="{{ url_for('new_appointment') }}"
+  >
+    + New Appointment
+  </a>
+
+  {% endif %}
+
+</div>
+
 
 <div class="row g-3 mb-4">
 
   <div class="col-6 col-md">
+
     <div class="card metric">
+
       <div class="card-body">
-        <small>Total Appointments</small>
-        <h3>{{ stats.total }}</h3>
+
+        <small>
+          Total Appointments
+        </small>
+
+        <h3>
+          {{ stats.total }}
+        </h3>
+
       </div>
+
     </div>
+
   </div>
 
-  <div class="col-6 col-md">
-    <div class="card metric">
-      <div class="card-body">
-        <small>Waiting</small>
-        <h3>{{ stats.waiting }}</h3>
-      </div>
-    </div>
-  </div>
 
   <div class="col-6 col-md">
+
     <div class="card metric">
+
       <div class="card-body">
-        <small>In Consultation</small>
-        <h3>{{ stats.in_consultation }}</h3>
+
+        <small>
+          Waiting
+        </small>
+
+        <h3>
+          {{ stats.waiting }}
+        </h3>
+
       </div>
+
     </div>
+
   </div>
 
-  <div class="col-6 col-md">
-    <div class="card metric">
-      <div class="card-body">
-        <small>Completed</small>
-        <h3>{{ stats.completed }}</h3>
-      </div>
-    </div>
-  </div>
 
   <div class="col-6 col-md">
+
     <div class="card metric">
+
       <div class="card-body">
-        <small>No Show</small>
-        <h3>{{ stats.no_show }}</h3>
+
+        <small>
+          In Consultation
+        </small>
+
+        <h3>
+          {{ stats.in_consultation }}
+        </h3>
+
       </div>
+
     </div>
+
+  </div>
+
+
+  <div class="col-6 col-md">
+
+    <div class="card metric">
+
+      <div class="card-body">
+
+        <small>
+          Completed
+        </small>
+
+        <h3>
+          {{ stats.completed }}
+        </h3>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="col-6 col-md">
+
+    <div class="card metric">
+
+      <div class="card-body">
+
+        <small>
+          No Show
+        </small>
+
+        <h3>
+          {{ stats.no_show }}
+        </h3>
+
+      </div>
+
+    </div>
+
   </div>
 
 </div>
@@ -60,21 +140,44 @@
 <div class="row g-3 mb-4">
 
   <div class="col-md-6">
+
     <div class="card metric">
+
       <div class="card-body">
-        <small>Average Patient Waiting Time</small>
-        <h3>{{ stats.avg_wait }} min</h3>
+
+        <small>
+          Average Patient Waiting Time
+        </small>
+
+        <h3>
+          {{ stats.avg_wait }} min
+        </h3>
+
       </div>
+
     </div>
+
   </div>
 
+
   <div class="col-md-6">
+
     <div class="card metric">
+
       <div class="card-body">
-        <small>Average Consultation Time</small>
-        <h3>{{ stats.avg_consult }} min</h3>
+
+        <small>
+          Average Consultation Time
+        </small>
+
+        <h3>
+          {{ stats.avg_consult }} min
+        </h3>
+
       </div>
+
     </div>
+
   </div>
 
 </div>
@@ -83,17 +186,32 @@
 <div class="row g-4 mb-4">
 
   <div class="col-lg-6">
-    <div class="card p-3">
-      <h5>Appointments by Doctor</h5>
+
+    <div class="card p-3 h-100">
+
+      <h5>
+        Appointments by Doctor
+      </h5>
+
       <canvas id="doctorChart"></canvas>
+
     </div>
+
   </div>
 
+
   <div class="col-lg-6">
-    <div class="card p-3">
-      <h5>Appointment Status</h5>
+
+    <div class="card p-3 h-100">
+
+      <h5>
+        Appointment Status
+      </h5>
+
       <canvas id="statusChart"></canvas>
+
     </div>
+
   </div>
 
 </div>
@@ -102,8 +220,11 @@
 <div class="card">
 
   <div class="card-header fw-bold">
+
     Today's Appointments
+
   </div>
+
 
   <div class="table-responsive">
 
@@ -112,15 +233,39 @@
       <thead>
 
         <tr>
-          <th>Queue</th>
-          <th>Time</th>
-          <th>Patient</th>
-          <th>Doctor</th>
-          <th>Room</th>
-          <th>Status</th>
+
+          <th>
+            Queue
+          </th>
+
+          <th>
+            Time
+          </th>
+
+          <th>
+            Patient
+          </th>
+
+          <th>
+            Doctor
+          </th>
+
+          <th>
+            Room
+          </th>
+
+          <th>
+            Duration
+          </th>
+
+          <th>
+            Status
+          </th>
+
         </tr>
 
       </thead>
+
 
       <tbody>
 
@@ -129,31 +274,101 @@
         <tr>
 
           <td>
+
             <span class="badge text-bg-primary">
+
               {{ a.queue_number }}
+
             </span>
+
           </td>
 
+
           <td>
+
             {{ a.scheduled_time.strftime('%H:%M') }}
+
           </td>
 
+
           <td>
+
             {{ a.patient.patient_no }}
+
             ·
+
             {{ a.patient.name }}
+
           </td>
 
+
           <td>
+
             {{ a.doctor.name }}
+
           </td>
 
+
           <td>
+
             {{ a.doctor.room or '-' }}
+
           </td>
 
+
           <td>
-            {{ a.status }}
+
+            {{ a.duration_minutes }} min
+
+          </td>
+
+
+          <td>
+
+            {% if a.status == 'Completed' %}
+
+              <span class="badge text-bg-success">
+                Completed
+              </span>
+
+            {% elif a.status == 'In Consultation' %}
+
+              <span class="badge text-bg-info">
+                In Consultation
+              </span>
+
+            {% elif a.status == 'Called' %}
+
+              <span class="badge text-bg-warning">
+                Called
+              </span>
+
+            {% elif a.status == 'Checked In' %}
+
+              <span class="badge text-bg-primary">
+                Checked In
+              </span>
+
+            {% elif a.status == 'No Show' %}
+
+              <span class="badge text-bg-secondary">
+                No Show
+              </span>
+
+            {% elif a.status == 'Cancelled' %}
+
+              <span class="badge text-bg-danger">
+                Cancelled
+              </span>
+
+            {% else %}
+
+              <span class="badge text-bg-light border text-dark">
+                {{ a.status }}
+              </span>
+
+            {% endif %}
+
           </td>
 
         </tr>
@@ -161,9 +376,16 @@
       {% else %}
 
         <tr>
-          <td colspan="6" class="text-center text-muted py-4">
+
+          <td
+            colspan="7"
+            class="text-center text-muted py-4"
+          >
+
             No appointments today.
+
           </td>
+
         </tr>
 
       {% endfor %}
@@ -176,6 +398,10 @@
 
 </div>
 
+{% endblock %}
+
+
+{% block scripts %}
 
 <script>
 
@@ -196,13 +422,13 @@ new Chart(
     },
 
     options: {
+      responsive: true,
+
       plugins: {
         legend: {
           display: false
         }
-      },
-
-      responsive: true
+      }
     }
   }
 );

@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Doctor Management</h2>
+
+<div class="row g-4">
+
+  <div class="col-lg-4">
+
+    <div class="card p-4">
+
+      <h5>Add Doctor</h5>
+
+      <form
+        method="post"
+        action="{{ url_for('add_doctor') }}"
+      >
+
+        <label class="form-label">
+          Doctor Name
+        </label>
+
+        <input
+          class="form-control mb-3"
+          name="name"
+          required
+        >
+
+        <label class="form-label">
+          Room
+        </label>
+
+        <input
+          class="form-control mb-3"
+          name="room"
+        >
+
+        <button class="btn btn-primary">
+          Add Doctor
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <div class="col-lg-8">
+
+    <div class="card">
+
+      <div class="table-responsive">
+
+        <table class="table mb-0">
+
+          <thead>
+
+            <tr>
+              <th>Name</th>
+              <th>Room</th>
+              <th>Status</th>
+              <th>Management</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+          {% for d in doctors %}
+
+            <tr>
+
+              <td>
+                {{ d.name }}
+              </td>
+
+              <td>
+                {{ d.room or '-' }}
+              </td>
+
+              <td>
+                {{ 'Active' if d.active else 'Inactive' }}
+              </td>
+
+              <td class="d-flex flex-wrap gap-1">
+
+                <a
+                  class="btn btn-sm btn-outline-primary"
+                  href="{{ url_for('doctor_schedule', doctor_id=d.id) }}"
+                >
+                  Schedule
+                </a>
+
+                <a
+                  class="btn btn-sm btn-outline-warning"
+                  href="{{ url_for('doctor_leave', doctor_id=d.id) }}"
+                >
+                  Leave
+                </a>
+
+                <form
+                  method="post"
+                  action="{{ url_for('toggle_doctor', doctor_id=d.id) }}"
+                >
+
+                  <button class="btn btn-sm btn-outline-secondary">
+
+                    {% if d.active %}
+                      Deactivate
+                    {% else %}
+                      Activate
+                    {% endif %}
+
+                  </button>
+
+                </form>
+
+              </td>
+
+            </tr>
+
+          {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

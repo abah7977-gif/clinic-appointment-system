@@ -21,13 +21,20 @@
 
 <div class="login-wrap">
 
-  <div class="card p-4" style="width:min(420px,92vw)">
+  <div class="card p-4" style="width:min(430px,92vw)">
 
-    <h3>Clinic Appointment System</h3>
+    <div class="text-center mb-3">
 
-    <p class="text-muted">
-      Version 3 · Secure Login
-    </p>
+      <h3 class="mb-1">
+        Clinic Appointment System
+      </h3>
+
+      <p class="text-muted mb-0">
+        Secure Staff Login
+      </p>
+
+    </div>
+
 
     {% with messages = get_flashed_messages(with_categories=true) %}
 
@@ -41,6 +48,7 @@
 
     {% endwith %}
 
+
     <form method="post">
 
       <label class="form-label">
@@ -50,9 +58,11 @@
       <input
         class="form-control mb-3"
         name="username"
+        placeholder="Enter username"
         required
         autofocus
       >
+
 
       <label class="form-label">
         Password
@@ -62,8 +72,10 @@
         class="form-control mb-3"
         type="password"
         name="password"
+        placeholder="Enter password"
         required
       >
+
 
       <button class="btn btn-primary w-100">
         Login
@@ -71,16 +83,18 @@
 
     </form>
 
+
     <hr>
 
-    <div class="small-muted">
-      Demo users:
+
+    <div class="small-muted text-center">
+
+      Admin and receptionist accounts are managed by the system administrator.
+
       <br>
-      admin / admin123
-      <br>
-      receptionist / reception123
-      <br>
-      doctor1 / doctor123
+
+      Doctor accounts are created when a new doctor is added.
+
     </div>
 
   </div>

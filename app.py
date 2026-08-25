@@ -2859,11 +2859,11 @@ def add_column_if_missing(
 
             connection.execute(
                 text(
-                    f"""
-                    ALTER TABLE {table_name}
-                    ADD COLUMN {column_name}
+                    f'''
+                    ALTER TABLE "{table_name}"
+                    ADD COLUMN "{column_name}"
                     {column_sql}
-                    """
+                    '''
                 )
             )
 

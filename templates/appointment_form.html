@@ -2,193 +2,356 @@
 
 {% block content %}
 
-<h2>
-  {% if appointment %}
-    Reschedule Appointment
-  {% else %}
-    New Appointment
-  {% endif %}
-</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
 
-<p class="text-muted">
-  The system validates doctor working hours, leave and overlapping appointments.
-</p>
+  <div>
 
-<div class="card p-4" style="max-width:950px">
+    <h2 class="mb-1">
 
-<form method="post">
+      {% if appointment %}
+        Reschedule Appointment
+      {% else %}
+        New Appointment
+      {% endif %}
+
+    </h2>
+
+    <p class="text-muted mb-0">
+      Select a date first, then choose from available appointment slots.
+    </p>
+
+  </div>
+
+</div>
+
+
+<div class="card p-4 mb-4">
+
+  <form method="get">
+
+    <div class="row g-3 align-items-end">
+
+      <div class="col-md-4">
+
+        <label class="form-label">
+          Appointment Date
+        </label>
+
+        <input
+          type="date"
+          class="form-control"
+          name="date"
+          value="{{ selected_date_text }}"
+          required
+        >
+
+      </div>
+
+      <div class="col-md-4">
+
+        <button class="btn btn-outline-primary w-100">
+          Load Available Slots
+        </button>
+
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
+
+
+{% if selected_date %}
+
+<div class="card p-4 mb-4">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+    <div>
+
+      <h5 class="mb-1">
+        Appointment Slots
+      </h5>
+
+      <span class="text-muted">
+        Date: {{ selected_date }}
+      </span>
+
+    </div>
+
+  </div>
+
+
+  {% if slots %}
 
   <div class="row g-3">
 
+    {% for slot in slots %}
+
+    <div class="col-6 col-md-4 col-lg-3">
+
+      <div
+        class="card h-100 p-3
+        {% if slot.status == 'AVAILABLE' %}
+          border border-success
+        {% elif slot.status == 'FULL' %}
+          border border-danger
+        {% else %}
+          border border-secondary
+        {% endif %}"
+      >
+
+        <h5 class="mb-2">
+          {{ slot.time_text }}
+        </h5>
+
+        <div class="small-muted mb-2">
+
+          Duration:
+          {{ slot.duration }} min
+
+        </div>
+
+
+        {% if slot.status == 'AVAILABLE' %}
+
+          <span class="badge text-bg-success mb-2">
+            AVAILABLE
+          </span>
+
+          <div class="small-muted">
+            {{ slot.available_count }} doctor(s) available
+          </div>
+
+        {% elif slot.status == 'FULL' %}
+
+          <span class="badge text-bg-danger mb-2">
+            FULL
+          </span>
+
+          <div class="small-muted">
+            No doctor available
+          </div>
+
+        {% else %}
+
+          <span class="badge text-bg-secondary mb-2">
+            BLOCKED
+          </span>
+
+          <div class="small-muted">
+            Slot blocked by administrator
+          </div>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+  {% else %}
+
+  <div class="alert alert-warning mb-0">
+    No appointment slots are available for this date.
+  </div>
+
+  {% endif %}
+
+</div>
+
+
+<div class="card p-4">
+
+  <form method="post">
+
+    <input
+      type="hidden"
+      name="appointment_date"
+      value="{{ selected_date.isoformat() }}"
+    >
+
+
     {% if not appointment %}
 
-    <div class="col-md-4">
+    <div class="row g-3 mb-3">
 
-      <label class="form-label">
-        Patient ID
-      </label>
+      <div class="col-md-4">
 
-      <input
-        class="form-control"
-        name="patient_no"
-        required
-      >
+        <label class="form-label">
+          Patient ID
+        </label>
+
+        <input
+          class="form-control"
+          name="patient_no"
+          placeholder="e.g. P001"
+          required
+        >
+
+      </div>
+
+
+      <div class="col-md-4">
+
+        <label class="form-label">
+          Patient Name
+        </label>
+
+        <input
+          class="form-control"
+          name="patient_name"
+          placeholder="Full patient name"
+          required
+        >
+
+      </div>
+
+
+      <div class="col-md-4">
+
+        <label class="form-label">
+          Phone
+        </label>
+
+        <input
+          class="form-control"
+          name="phone"
+          placeholder="Optional"
+        >
+
+      </div>
 
     </div>
 
+    {% else %}
 
-    <div class="col-md-4">
+    <div class="alert alert-light border">
 
-      <label class="form-label">
-        Patient Name
-      </label>
-
-      <input
-        class="form-control"
-        name="patient_name"
-        required
-      >
-
-    </div>
-
-
-    <div class="col-md-4">
-
-      <label class="form-label">
-        Phone
-      </label>
-
-      <input
-        class="form-control"
-        name="phone"
-      >
+      <strong>Patient:</strong>
+      {{ appointment.patient.patient_no }}
+      ·
+      {{ appointment.patient.name }}
 
     </div>
 
     {% endif %}
 
 
-    <div class="col-md-3">
+    <div class="row g-3">
 
-      <label class="form-label">
-        Appointment Date
-      </label>
+      <div class="col-md-4">
 
-      <input
-        type="date"
-        class="form-control"
-        name="appointment_date"
-        value="{{ appointment.appointment_date if appointment else '' }}"
-        required
-      >
+        <label class="form-label">
+          Appointment Slot
+        </label>
 
-    </div>
-
-
-    <div class="col-md-3">
-
-      <label class="form-label">
-        Appointment Time
-      </label>
-
-      <input
-        type="time"
-        class="form-control"
-        name="scheduled_time"
-        value="{{ appointment.scheduled_time.strftime('%H:%M') if appointment else '' }}"
-        required
-      >
-
-    </div>
-
-
-    <div class="col-md-3">
-
-      <label class="form-label">
-        Expected Duration
-      </label>
-
-      <select
-        class="form-select"
-        name="duration_minutes"
-      >
-
-        {% for x in [15,30,45,60] %}
-
-        <option
-          value="{{ x }}"
-          {% if appointment and appointment.duration_minutes == x %}
-            selected
-          {% endif %}
-        >
-          {{ x }} minutes
-        </option>
-
-        {% endfor %}
-
-      </select>
-
-    </div>
-
-
-    <div class="col-md-3">
-
-      <label class="form-label">
-        Doctor
-      </label>
-
-      <select
-        class="form-select"
-        name="doctor_id"
-      >
-
-        <option value="">
-          Auto-Assign Available Doctor
-        </option>
-
-        {% for d in doctors %}
-
-        <option
-          value="{{ d.id }}"
-          {% if appointment and appointment.doctor_id == d.id %}
-            selected
-          {% endif %}
+        <select
+          class="form-select"
+          name="scheduled_time"
+          required
         >
 
-          {{ d.name }}
+          <option value="">
+            Select available slot
+          </option>
 
-          {% if d.room %}
-            · {{ d.room }}
+          {% for slot in slots %}
+
+            {% if slot.status == 'AVAILABLE' %}
+
+            <option
+              value="{{ slot.time_text }}"
+              {% if appointment
+                    and appointment.scheduled_time.strftime('%H:%M') == slot.time_text %}
+                selected
+              {% endif %}
+            >
+
+              {{ slot.time_text }}
+              ·
+              {{ slot.duration }} min
+              ·
+              {{ slot.available_count }} doctor(s) available
+
+            </option>
+
+            {% endif %}
+
+          {% endfor %}
+
+        </select>
+
+      </div>
+
+
+      <div class="col-md-4">
+
+        <label class="form-label">
+          Doctor
+        </label>
+
+        <select
+          class="form-select"
+          name="doctor_id"
+        >
+
+          <option value="">
+            Auto-Assign Available Doctor
+          </option>
+
+          {% for d in doctors %}
+
+          <option
+            value="{{ d.id }}"
+            {% if appointment and appointment.doctor_id == d.id %}
+              selected
+            {% endif %}
+          >
+
+            {{ d.name }}
+
+            {% if d.room %}
+              · {{ d.room }}
+            {% endif %}
+
+          </option>
+
+          {% endfor %}
+
+        </select>
+
+        <div class="form-text">
+          The system will verify the selected doctor against the chosen slot.
+        </div>
+
+      </div>
+
+
+      <div class="col-md-4 d-flex align-items-end">
+
+        <button class="btn btn-primary w-100">
+
+          {% if appointment %}
+            Save Rescheduled Appointment
+          {% else %}
+            Save Appointment
           {% endif %}
 
-        </option>
+        </button>
 
-        {% endfor %}
-
-      </select>
+      </div>
 
     </div>
 
-  </div>
-
-
-  <div class="mt-4">
-
-    <button class="btn btn-primary">
-      Save Appointment
-    </button>
-
-    <a
-      href="{{ url_for('appointments') }}"
-      class="btn btn-outline-secondary"
-    >
-      Cancel
-    </a>
-
-  </div>
-
-</form>
+  </form>
 
 </div>
+
+{% endif %}
 
 {% endblock %}

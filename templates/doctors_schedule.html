@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>
+  {{ doctor.name }} · Working Schedule
+</h2>
+
+<div class="row g-4">
+
+  <div class="col-lg-4">
+
+    <div class="card p-4">
+
+      <form method="post">
+
+        <label class="form-label">
+          Day
+        </label>
+
+        <select
+          class="form-select mb-3"
+          name="weekday"
+        >
+
+          <option value="0">Monday</option>
+          <option value="1">Tuesday</option>
+          <option value="2">Wednesday</option>
+          <option value="3">Thursday</option>
+          <option value="4">Friday</option>
+          <option value="5">Saturday</option>
+          <option value="6">Sunday</option>
+
+        </select>
+
+
+        <label class="form-label">
+          Start Time
+        </label>
+
+        <input
+          type="time"
+          class="form-control mb-3"
+          name="start_time"
+          required
+        >
+
+
+        <label class="form-label">
+          End Time
+        </label>
+
+        <input
+          type="time"
+          class="form-control mb-3"
+          name="end_time"
+          required
+        >
+
+
+        <button class="btn btn-primary">
+          Add Schedule
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <div class="col-lg-8">
+
+    <div class="card">
+
+      <table class="table mb-0">
+
+        <thead>
+
+          <tr>
+            <th>Day</th>
+            <th>Start</th>
+            <th>End</th>
+            <th></th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% set days = [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday'
+        ] %}
+
+        {% for s in schedules %}
+
+          <tr>
+
+            <td>
+              {{ days[s.weekday] }}
+            </td>
+
+            <td>
+              {{ s.start_time.strftime('%H:%M') }}
+            </td>
+
+            <td>
+              {{ s.end_time.strftime('%H:%M') }}
+            </td>
+
+            <td>
+
+              <form
+                method="post"
+                action="{{ url_for('delete_schedule', schedule_id=s.id) }}"
+              >
+
+                <button class="btn btn-sm btn-outline-danger">
+                  Delete
+                </button>
+
+              </form>
+
+            </td>
+
+          </tr>
+
+        {% else %}
+
+          <tr>
+
+            <td
+              colspan="4"
+              class="text-center py-4 text-muted"
+            >
+              No working schedule added.
+            </td>
+
+          </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

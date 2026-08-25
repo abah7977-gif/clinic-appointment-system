@@ -4,10 +4,18 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime, date, time, timedelta
+from zoneinfo import ZoneInfo
 from functools import wraps
 import os
 
 load_dotenv()
+MALAYSIA_TZ = ZoneInfo("Asia/Kuala_Lumpur")
+
+def malaysia_now():
+    return datetime.now(MALAYSIA_TZ).replace(tzinfo=None)
+
+def malaysia_today():
+    return malaysia_now().date()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-change-me')
 database_url = os.getenv('DATABASE_URL', 'sqlite:///clinic_v3.db')
@@ -126,7 +134,7 @@ def next_queue_number(appt_date):
     return f'A{count+1:03d}'
 
 @app.context_processor
-def inject_globals(): return {'current_date':date.today()}
+def inject_globals(): return {'current_date':malaysia_today()}
 
 @app.route('/login',methods=['GET','POST'])
 def login():
@@ -144,7 +152,7 @@ def logout(): logout_user(); return redirect(url_for('login'))
 @app.route('/')
 @login_required
 def dashboard():
-    today=date.today(); q=Appointment.query.filter_by(appointment_date=today)
+    today=malaysia_today(); q=Appointment.query.filter_by(appointment_date=today)
     if current_user.role=='Doctor' and current_user.doctor_id: q=q.filter_by(doctor_id=current_user.doctor_id)
     rows=q.order_by(Appointment.scheduled_time).all(); waits=[]; consults=[]
     for a in rows:
@@ -215,7 +223,7 @@ def reschedule_appointment(appointment_id):
 def appointment_action(appointment_id):
     a=db.get_or_404(Appointment,appointment_id)
     if current_user.role=='Doctor' and current_user.doctor_id!=a.doctor_id: abort(403)
-    action=request.form['action']; now=datetime.now()
+    action=request.form['action']; now=malaysia_now()
     if action=='checkin' and current_user.role in ['Admin','Receptionist']: a.check_in_time=now; a.status='Checked In'
     elif action=='call' and current_user.role in ['Admin','Receptionist','Doctor']: a.called_time=now; a.status='Called'
     elif action=='start' and current_user.role in ['Admin','Doctor']: a.consultation_start=now; a.status='In Consultation'
@@ -228,7 +236,7 @@ def appointment_action(appointment_id):
 @app.route('/queue')
 @login_required
 def queue_board():
-    q=Appointment.query.filter(Appointment.appointment_date==date.today(),Appointment.status.in_(['Checked In','Called','In Consultation']))
+    q=Appointment.query.filter(Appointment.appointment_date==malaysia_today(),Appointment.status.in_(['Checked In','Called','In Consultation']))
     if current_user.role=='Doctor' and current_user.doctor_id: q=q.filter_by(doctor_id=current_user.doctor_id)
     return render_template('queue.html',appointments=q.order_by(Appointment.scheduled_time).all())
 

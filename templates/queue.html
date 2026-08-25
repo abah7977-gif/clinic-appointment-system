@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<meta http-equiv="refresh" content="15">
+
+<h2>Live Queue Board</h2>
+
+<p class="text-muted">
+  Automatically refreshes every 15 seconds.
+</p>
+
+
+<div class="row g-4">
+
+{% for a in appointments %}
+
+  <div class="col-md-4">
+
+    <div class="card p-4 text-center h-100">
+
+      <div class="queue-number">
+        {{ a.queue_number }}
+      </div>
+
+      <h5 class="mt-2">
+        {{ a.doctor.name }}
+      </h5>
+
+      <p>
+        {{ a.doctor.room or 'Consultation Room' }}
+      </p>
+
+      <span
+        class="badge
+        {% if a.status == 'Called' %}
+          text-bg-warning
+        {% elif a.status == 'In Consultation' %}
+          text-bg-success
+        {% else %}
+          text-bg-primary
+        {% endif %}"
+      >
+        {{ a.status }}
+      </span>
+
+    </div>
+
+  </div>
+
+{% else %}
+
+  <div class="col-12">
+
+    <div class="card p-5 text-center text-muted">
+      No patients currently in the active queue.
+    </div>
+
+  </div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

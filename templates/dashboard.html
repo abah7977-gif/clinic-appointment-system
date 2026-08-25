@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="mb-1">Clinic Dashboard</h2>
+<p class="text-muted">
+  Operational overview for {{ current_date }}
+</p>
+
+<div class="row g-3 mb-4">
+
+  <div class="col-6 col-md">
+    <div class="card metric">
+      <div class="card-body">
+        <small>Total Appointments</small>
+        <h3>{{ stats.total }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md">
+    <div class="card metric">
+      <div class="card-body">
+        <small>Waiting</small>
+        <h3>{{ stats.waiting }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md">
+    <div class="card metric">
+      <div class="card-body">
+        <small>In Consultation</small>
+        <h3>{{ stats.in_consultation }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md">
+    <div class="card metric">
+      <div class="card-body">
+        <small>Completed</small>
+        <h3>{{ stats.completed }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md">
+    <div class="card metric">
+      <div class="card-body">
+        <small>No Show</small>
+        <h3>{{ stats.no_show }}</h3>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="row g-3 mb-4">
+
+  <div class="col-md-6">
+    <div class="card metric">
+      <div class="card-body">
+        <small>Average Patient Waiting Time</small>
+        <h3>{{ stats.avg_wait }} min</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card metric">
+      <div class="card-body">
+        <small>Average Consultation Time</small>
+        <h3>{{ stats.avg_consult }} min</h3>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="row g-4 mb-4">
+
+  <div class="col-lg-6">
+    <div class="card p-3">
+      <h5>Appointments by Doctor</h5>
+      <canvas id="doctorChart"></canvas>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card p-3">
+      <h5>Appointment Status</h5>
+      <canvas id="statusChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="card">
+
+  <div class="card-header fw-bold">
+    Today's Appointments
+  </div>
+
+  <div class="table-responsive">
+
+    <table class="table table-hover align-middle mb-0">
+
+      <thead>
+
+        <tr>
+          <th>Queue</th>
+          <th>Time</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Room</th>
+          <th>Status</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+      {% for a in appointments %}
+
+        <tr>
+
+          <td>
+            <span class="badge text-bg-primary">
+              {{ a.queue_number }}
+            </span>
+          </td>
+
+          <td>
+            {{ a.scheduled_time.strftime('%H:%M') }}
+          </td>
+
+          <td>
+            {{ a.patient.patient_no }}
+            ·
+            {{ a.patient.name }}
+          </td>
+
+          <td>
+            {{ a.doctor.name }}
+          </td>
+
+          <td>
+            {{ a.doctor.room or '-' }}
+          </td>
+
+          <td>
+            {{ a.status }}
+          </td>
+
+        </tr>
+
+      {% else %}
+
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">
+            No appointments today.
+          </td>
+        </tr>
+
+      {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<script>
+
+new Chart(
+  document.getElementById('doctorChart'),
+  {
+    type: 'bar',
+
+    data: {
+      labels: {{ doctor_labels|tojson }},
+
+      datasets: [
+        {
+          label: 'Appointments',
+          data: {{ doctor_values|tojson }}
+        }
+      ]
+    },
+
+    options: {
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+
+      responsive: true
+    }
+  }
+);
+
+
+new Chart(
+  document.getElementById('statusChart'),
+  {
+    type: 'doughnut',
+
+    data: {
+      labels: {{ status_labels|tojson }},
+
+      datasets: [
+        {
+          data: {{ status_values|tojson }}
+        }
+      ]
+    },
+
+    options: {
+      responsive: true
+    }
+  }
+);
+
+</script>
+
+{% endblock %}

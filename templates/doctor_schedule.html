@@ -2,15 +2,37 @@
 
 {% block content %}
 
-<h2>
-  {{ doctor.name }} · Working Schedule
-</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+
+  <div>
+    <h2 class="mb-1">
+      {{ doctor.name }} · Working Schedule
+    </h2>
+
+    <p class="text-muted mb-0">
+      Define the doctor’s working days and available consultation hours.
+    </p>
+  </div>
+
+  <a
+    href="{{ url_for('doctors') }}"
+    class="btn btn-outline-secondary"
+  >
+    Back to Doctors
+  </a>
+
+</div>
+
 
 <div class="row g-4">
 
   <div class="col-lg-4">
 
     <div class="card p-4">
+
+      <h5 class="mb-3">
+        Add Working Schedule
+      </h5>
 
       <form method="post">
 
@@ -21,6 +43,7 @@
         <select
           class="form-select mb-3"
           name="weekday"
+          required
         >
 
           <option value="0">Monday</option>
@@ -58,7 +81,10 @@
         >
 
 
-        <button class="btn btn-primary">
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+        >
           Add Schedule
         </button>
 
@@ -73,86 +99,109 @@
 
     <div class="card">
 
-      <table class="table mb-0">
+      <div class="card-header fw-bold">
+        Current Working Schedule
+      </div>
 
-        <thead>
 
-          <tr>
-            <th>Day</th>
-            <th>Start</th>
-            <th>End</th>
-            <th></th>
-          </tr>
+      <div class="table-responsive">
 
-        </thead>
+        <table class="table table-hover align-middle mb-0">
 
-        <tbody>
+          <thead>
 
-        {% set days = [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday'
-        ] %}
+            <tr>
+              <th>Day</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Action</th>
+            </tr>
 
-        {% for s in schedules %}
+          </thead>
 
-          <tr>
 
-            <td>
-              {{ days[s.weekday] }}
-            </td>
+          <tbody>
 
-            <td>
-              {{ s.start_time.strftime('%H:%M') }}
-            </td>
+          {% set days = [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday'
+          ] %}
 
-            <td>
-              {{ s.end_time.strftime('%H:%M') }}
-            </td>
+          {% for s in schedules %}
 
-            <td>
+            <tr>
 
-              <form
-                method="post"
-                action="{{ url_for('delete_schedule', schedule_id=s.id) }}"
+              <td>
+                {{ days[s.weekday] }}
+              </td>
+
+              <td>
+                {{ s.start_time.strftime('%H:%M') }}
+              </td>
+
+              <td>
+                {{ s.end_time.strftime('%H:%M') }}
+              </td>
+
+              <td>
+
+                <form
+                  method="post"
+                  action="{{ url_for('delete_schedule', schedule_id=s.id) }}"
+                  onsubmit="return confirm('Delete this working schedule?');"
+                >
+
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-outline-danger"
+                  >
+                    Delete
+                  </button>
+
+                </form>
+
+              </td>
+
+            </tr>
+
+          {% else %}
+
+            <tr>
+
+              <td
+                colspan="4"
+                class="text-center py-4 text-muted"
               >
+                No working schedule added.
+              </td>
 
-                <button class="btn btn-sm btn-outline-danger">
-                  Delete
-                </button>
+            </tr>
 
-              </form>
+          {% endfor %}
 
-            </td>
+          </tbody>
 
-          </tr>
+        </table>
 
-        {% else %}
-
-          <tr>
-
-            <td
-              colspan="4"
-              class="text-center py-4 text-muted"
-            >
-              No working schedule added.
-            </td>
-
-          </tr>
-
-        {% endfor %}
-
-        </tbody>
-
-      </table>
+      </div>
 
     </div>
 
   </div>
+
+</div>
+
+
+<div class="alert alert-light border mt-4">
+
+  Appointment slots are only generated within the doctor’s working schedule.
+
+  If a doctor has no schedule for a particular day, the doctor will not be considered available on that day.
 
 </div>
 

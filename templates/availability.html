@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Doctor Availability</h2>
+
+<p class="text-muted">
+  Check how many doctors are available for a proposed appointment slot.
+</p>
+
+<div class="card p-4 mb-4">
+
+  <form method="get" class="row g-3">
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Date
+      </label>
+
+      <input
+        type="date"
+        class="form-control"
+        name="date"
+        value="{{ date_str }}"
+        required
+      >
+
+    </div>
+
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Time
+      </label>
+
+      <input
+        type="time"
+        class="form-control"
+        name="time"
+        value="{{ time_str }}"
+        required
+      >
+
+    </div>
+
+
+    <div class="col-md-3">
+
+      <label class="form-label">
+        Duration
+      </label>
+
+      <select
+        class="form-select"
+        name="duration"
+      >
+
+        {% for x in [15,30,45,60] %}
+
+        <option
+          value="{{ x }}"
+          {% if duration == x %}
+            selected
+          {% endif %}
+        >
+          {{ x }} minutes
+        </option>
+
+        {% endfor %}
+
+      </select>
+
+    </div>
+
+
+    <div class="col-md-3 d-flex align-items-end">
+
+      <button class="btn btn-primary w-100">
+        Check Availability
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+
+
+{% if date_str and time_str %}
+
+<div class="card p-4">
+
+  <h4>
+    {{ available|length }} doctor(s) available
+  </h4>
+
+  {% for d, workload in available %}
+
+    <div class="border rounded p-3 mb-2">
+
+      <strong>
+        {{ d.name }}
+      </strong>
+
+      ·
+
+      {{ d.room or 'No room assigned' }}
+
+      <br>
+
+      <span class="text-muted">
+        Appointments already assigned that day:
+        {{ workload }}
+      </span>
+
+    </div>
+
+  {% else %}
+
+    <div class="alert alert-danger mb-0">
+      FULL / No doctor available for this slot.
+    </div>
+
+  {% endfor %}
+
+</div>
+
+{% endif %}
+
+{% endblock %}
